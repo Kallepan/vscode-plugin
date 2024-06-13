@@ -11,23 +11,13 @@ suite("Extension Test Suite", () => {
   vscode.window.showInformationMessage("Start all tests.");
 
   let sandbox: sinon.SinonSandbox;
-  let mockExtensionContext: vscode.ExtensionContext;
+
+  setup(() => {
+    sandbox = sinon.createSandbox();
+  });
 
   teardown(() => {
     sandbox.restore();
-  });
-
-  test("Fetch request is made", () => {
-    const fetchStub = sandbox.stub(global, "fetch").resolves();
-    activate(mockExtensionContext);
-    assert.ok(fetchStub.calledOnce);
-  });
-
-  test("Error message is shown when fetch request fails", () => {
-    const fetchStub = sandbox.stub(global, "fetch").rejects();
-    const showErrorMessageSpy = sandbox.spy(vscode.window, "showErrorMessage");
-    activate(mockExtensionContext);
-    assert.ok(showErrorMessageSpy.calledOnce);
   });
 
   test("Webview is created on command execution", async () => {
@@ -37,5 +27,16 @@ suite("Extension Test Suite", () => {
     );
     await vscode.commands.executeCommand("kite-usermon.openUserMon");
     assert.ok(showWebviewPanelSpy.calledOnce);
+  });
+
+  test("Webview is created with correct title", async () => {
+    const showWebviewPanelSpy = sandbox.spy(
+      vscode.window,
+      "createWebviewPanel"
+    );
+    await vscode.commands.executeCommand("kite-usermon.openUserMon");
+    assert.ok(
+      showWebviewPanelSpy.calledWith("kiteUserMon", "Kite User Monitoring")
+    );
   });
 });

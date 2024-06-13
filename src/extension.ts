@@ -4,19 +4,28 @@ import * as vscode from "vscode";
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
   const url = "https://www.example.com/";
 
   // Do a fetch request to see if the user is online
-  fetch(url)
+  const res: boolean = await fetch(url)
     .then(() => {
       console.log("User is online");
+
+      return true;
     })
     .catch(() => {
       vscode.window.showErrorMessage(
         "You are offline. Please check your internet connection."
       );
+
+      return false;
     });
+
+  // If the user is offline, we don't want to register the command
+  if (!res) {
+    return;
+  }
 
   const openUrlDisposable = vscode.commands.registerCommand(
     "kite-usermon.openUserMon",
